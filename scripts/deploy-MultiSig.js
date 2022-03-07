@@ -15,7 +15,7 @@ async function main() {
 
   // We get the contract to deploy
   const MultiSig = await hre.ethers.getContractFactory("MultiSig");
-  const multisig = await MultiSig.deploy("Hello, Hardhat!");
+  const multisig = await MultiSig.deploy(["array", "of", "owners", required]);
 
   await multisig.deployed();
 

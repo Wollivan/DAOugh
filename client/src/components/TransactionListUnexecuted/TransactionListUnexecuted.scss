@@ -1,0 +1,46 @@
+@use "../../styles/partials/variables" as v;
+@use "../../styles/partials/mixins" as m;
+@use "../../styles/partials/breakpoints" as bp;
+@use "../../styles/partials/buttons";
+
+.transaction-list {
+  display: flex;
+  flex-direction: column;
+  &__item {
+    padding: 1rem;
+    background-color: v.$secondary-color;
+    color: #fff;
+    &:first-of-type {
+      border: none;
+    }
+    &:nth-child(even) {
+      background-color: v.$tertiary-color;
+    }
+    &-title {
+      font-weight: 700;
+      margin-bottom: 0;
+    }
+    &-details {
+      display: flex;
+      flex-direction: column;
+      @include bp.medium {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      &-item {
+        &-title {
+          font-weight: 700;
+        }
+        &-value {
+          //color: v.$tertiary-color;
+        }
+      }
+    }
+    &-button-wrap {
+      display: flex;
+      justify-content: flex-end;
+      &-button {
+      }
+    }
+  }
+}

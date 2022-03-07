@@ -18,6 +18,17 @@
     border: 1px solid v.$tertiary-color;
     color: #fff;
   }
+  &--primary {
+    @extend .button;
+    background-color: v.$primary-color;
+    border: 3px solid v.$primary-color;
+    color: #000;
+    &:hover {
+      background-color: v.$primary-color;
+      border: 3px solid #000;
+      color: #000;
+    }
+  }
 
   &__disabled {
     @extend .button;

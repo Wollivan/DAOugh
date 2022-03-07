@@ -74,11 +74,24 @@ contract MultiSig {
         return transactionCount - 1;
     }
 
-    function spendIngredients() payable external {
+    function makeDough() payable external {
         //require user to have 1 of each ingredient
-        //require contract to have at least 1 dough token
-        //take ingredient tokens from sender using call to the ERC20 contract, which has a require that teh owner is this contract
-        //give sender dough token same as above
+        
+        //require contract to have at least 1 dough token left to give
+
+        //take ingredient tokens from sender and add them back to the contract
+
+        //give sender dough token 
+        
+        //add sender to the owners if they aren't already in there
+        if(!isOwner(msg.sender)) {
+            owners.push(msg.sender);
+            //set new required amount to be 20 %
+            // if 5% isn't a whole number, don't change the required number and check there are at least 10 owners
+            if(owners.length / 5 % 1 == 0 && owners.length > 10) {
+                required = owners.length / 5;
+            }
+        }
     } 
 
     constructor(address[] memory _owners, uint _confirmations) {

@@ -4,4 +4,13 @@
 
 .wallet-details {
   text-align: center;
+
+  &__columns {
+    display: flex;
+    justify-content: space-evenly;
+    &-column {
+      display: flex;
+      flex-direction: column;
+    }
+  }
 }

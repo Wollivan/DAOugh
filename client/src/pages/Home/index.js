@@ -1,15 +1,18 @@
 import { ethers } from "ethers";
-import React, { useState } from "react";
+import React from "react";
 import HomeContent from "../../components/HomeContent/HomeContent";
 import LinkedWalletDetails from "../../components/LinkedWalletDetails/LinkedWalletDetails";
 import LinkWallet from "../../components/LinkWallet/LinkWallet";
 import MakeDough from "../../components/MakeDough/MakeDough";
 import ProposeTransaction from "../../components/ProposeTransaction/ProposeTransaction";
+import TransactionListExecuted from "../../components/TransactionListExecuted/TransactionListExecuted";
+import TransactionListUnexecuted from "../../components/TransactionListUnexecuted/TransactionListUnexecuted";
+import MultiSigJSON from "../../utils/MultiSig.json";
+const MultiSigAddress = "0xb0bf7Ba98d1ceA8a4Ff8556Ab8381B2E92d4C823";
 
 // TODO import contsactJSON from "utils where i put the abi"
 
-export default function Home() {
-  const [address, setAddress] = useState("");
+export default function Home({ address, setAddress }) {
   // get etheruem instance
   const { ethereum } = window;
 
@@ -56,6 +59,17 @@ export default function Home() {
     setAddress(walletAddress);
   }
 
+  async function submitTransaction(recipient, value, data) {
+    const signer = await provider.getSigner();
+    const contractInstance = new ethers.Contract(
+      MultiSigAddress,
+      MultiSigJSON,
+      signer
+    );
+    await contractInstance.submitTransaction();
+    // set the list to update so it shows the new submitted transaction
+  }
+
   if (address) {
     return (
       <div className="content">
@@ -68,28 +82,42 @@ export default function Home() {
           // TODO link to whitepaper and discord
         }
         <section className="section">
-          <LinkedWalletDetails walletAddress={address} />
+          <HomeContent />
         </section>
         <section className="section">
-          <HomeContent />
+          <LinkedWalletDetails walletAddress={address} />
         </section>
         <section className="section">
           <MakeDough />
         </section>
         <section className="section">
-          <ProposeTransaction />
+          <ProposeTransaction submitTransaction={submitTransaction} />
+        </section>
+
+        <section className="section">
+          <h3>Transactions awaiting approval</h3>
+          <TransactionListUnexecuted />
+        </section>
+        <section className="section">
+          <h3>Previous Transactions</h3>
+          <TransactionListExecuted />
         </section>
       </div>
     );
   } else {
     return (
-      <section className="section">
-        <LinkWallet
-          ethereum={ethereum}
-          handleLinkWallet={handleLinkWallet}
-          walletAddress
-        />
-      </section>
+      <div className="content">
+        <section className="section">
+          <HomeContent />
+        </section>
+        <section className="section">
+          <LinkWallet
+            ethereum={ethereum}
+            handleLinkWallet={handleLinkWallet}
+            walletAddress
+          />
+        </section>
+      </div>
     );
   }
 }

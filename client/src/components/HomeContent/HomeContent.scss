@@ -12,3 +12,11 @@
     justify-content: space-around;
   }
 }
+
+.fixed-width-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 35%;
+  height: 50px;
+}
