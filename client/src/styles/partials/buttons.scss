@@ -1,0 +1,33 @@
+@use "./variables" as v;
+
+.button {
+  background-color: v.$secondary-color;
+  border: 1px solid v.$secondary-color;
+  // border-radius: 5px;
+  color: #fff;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  &:hover {
+    background-color: v.$primary-color;
+    border: 1px solid v.$primary-color;
+    color: #000;
+  }
+
+  &__disabled {
+    @extend .button;
+    background-color: v.$secondary-color;
+    border: 1px solid v.$secondary-color;
+    opacity: 0.4;
+    color: #fff;
+    cursor: default;
+    &:hover {
+      background-color: v.$secondary-color;
+      border: 1px solid v.$secondary-color;
+      color: #fff;
+    }
+  }
+}

@@ -1,0 +1,64 @@
+@use "./partials/variables" as v;
+// @use './partials/fonts' as f;
+@use "./partials/mixins" as m;
+@use "./partials/breakpoints" as bp;
+@use "./partials/buttons";
+
+.App {
+  z-index: -1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  // background-color: #f7f8f9;
+  // font-family: "Press Start 2P", cursive;
+
+  font-family: "Roboto Mono", monospace;
+  line-height: 1.5rem;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 5rem 1rem;
+  text-align: left;
+  // font-family: "Press Start 2P", cursive;
+  @include bp.medium {
+    padding: 5rem 15%;
+  }
+  @include bp.large {
+    padding: 5rem 25%;
+  }
+}
+
+.green {
+  color: v.$primary-color;
+}
+
+.logo-wrap-full {
+  display: flex;
+  justify-content: center;
+  @include bp.medium {
+    display: flex;
+    justify-content: flex-end;
+  }
+  img {
+    max-width: 80%;
+  }
+}
+
+.gradient-bg {
+  background: v.$primary-color;
+  background: linear-gradient(
+    90deg,
+    v.$primary-color 0%,
+    v.$secondary-color 100%
+  );
+  .content__title {
+    color: #fff !important;
+  }
+  color: #fff !important;
+  a {
+    color: v.$fourthiary-color;
+  }
+}

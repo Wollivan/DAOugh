@@ -1,0 +1,9 @@
+@use "../../styles/partials/variables" as v;
+@use "../../styles/partials/mixins" as m;
+@use "../../styles/partials/breakpoints" as bp;
+
+.make-dough {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
