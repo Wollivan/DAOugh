@@ -1,0 +1,10 @@
+@use "../../styles/partials/variables" as v;
+@use "../../styles/partials/mixins" as m;
+@use "../../styles/partials/breakpoints" as bp;
+
+.link-wallet {
+  display: flex;
+  justify-content: center;
+  &__button {
+  }
+}

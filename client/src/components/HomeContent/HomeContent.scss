@@ -1,0 +1,14 @@
+@use "../../styles/partials/variables" as v;
+@use "../../styles/partials/mixins" as m;
+@use "../../styles/partials/breakpoints" as bp;
+
+.home-content {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  &__button-wrap {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+}
