@@ -4,7 +4,11 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 const hre = require("hardhat");
-
+let owners = [
+  "0xbAA390D7b0e7adAc5dF373c43187e412a2D2D200", // al
+  "0x9AdD9608916bA821c642dc57a567096a6AF7e923", // Tim S
+  "0x1A4B691738C9c8Db8f2EDf0b9207f6acb24ADF07", // Hunter K
+];
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
   // line interface.
@@ -15,7 +19,7 @@ async function main() {
 
   // We get the contract to deploy
   const MultiSig = await hre.ethers.getContractFactory("MultiSig");
-  const multisig = await MultiSig.deploy(["array", "of", "owners", required]);
+  const multisig = await MultiSig.deploy(owners);
 
   await multisig.deployed();
 
@@ -30,3 +34,5 @@ main()
     console.error(error);
     process.exit(1);
   });
+
+//multisig 0x13fDd03647e6Df9895D212c2Dee2995CdDF111C6

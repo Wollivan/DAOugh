@@ -30,3 +30,5 @@ main()
     console.error(error);
     process.exit(1);
   });
+
+//npx hardhat run scripts/sample-script.js --network rinkeby

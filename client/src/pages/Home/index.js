@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import HomeContent from "../../components/HomeContent/HomeContent";
 import LinkedWalletDetails from "../../components/LinkedWalletDetails/LinkedWalletDetails";
 import LinkWallet from "../../components/LinkWallet/LinkWallet";
@@ -8,39 +8,47 @@ import ProposeTransaction from "../../components/ProposeTransaction/ProposeTrans
 import TransactionListExecuted from "../../components/TransactionListExecuted/TransactionListExecuted";
 import TransactionListUnexecuted from "../../components/TransactionListUnexecuted/TransactionListUnexecuted";
 import MultiSigJSON from "../../utils/MultiSig.json";
-const MultiSigAddress = "0xb0bf7Ba98d1ceA8a4Ff8556Ab8381B2E92d4C823";
+import GreeterJSON from "../../utils/Greeter.json";
+const MultiSigAddress = "0x13fDd03647e6Df9895D212c2Dee2995CdDF111C6";
+const greeterAddress = "0xA413FBac1487Cf37e82295e23f02f53D64bBCa5A";
 
 // TODO import contsactJSON from "utils where i put the abi"
 
 export default function Home({ address, setAddress }) {
+  const [theProvider, setTheProvider] = useState(null);
+  const [formValid, setFormValid] = useState(true);
+  const [form, setForm] = useState({
+    recipient: "",
+    token: "",
+    value: "",
+  });
+
   // get etheruem instance
   const { ethereum } = window;
 
-  //const contractInstance = new ethersContract(contractAddress, contractJSON.abi, signer);
-  // TODO get hardhat confix and env from tmken project
-  // TODO ask al about getting the hardhat artifact for the utils folder, to then import that json
+  useEffect(() => {
+    if (ethereum) {
+      //try to connect immediatly, if that fails, address won't be set and the button to manually connect will be shown
+      handleLinkWallet();
+      //this function uses provider as it is above, not the version in state. Future functions use theProvider
+      getUserDetails();
+    }
+  }, []);
 
   let provider;
 
   const handleLinkWallet = () => {
-    // ethereum
-    //   .request({ method: "eth_requestAccounts" })
-    //   .then(handleAccountsChanged)
-    //   .catch((error) => {
-    //     if (error.code === 4001) {
-    //       // EIP-1193 userRejectedRequest error
-    //       console.log("Please connect to MetaMask.");
-    //     } else {
-    //       console.error(error);
-    //     }
-    //   });
-
-    console.log("link wallet");
+    console.log("Attempting to link wallet");
     provider = new ethers.providers.Web3Provider(ethereum);
+
+    // put provider in state so we can use it later without worrying about it not being set anymore
+    setTheProvider(provider);
+    //provider = new ethers.providers.Web3Provider(ethereum);
     ethereum
       .request({ method: "eth_requestAccounts" })
       .then(() => {
-        console.log("did work");
+        console.log("Wallet linked successfully");
+        getUserDetails();
       })
       .catch((error) => {
         if (error.code === 4001) {
@@ -50,7 +58,6 @@ export default function Home({ address, setAddress }) {
           console.error(error);
         }
       });
-    getUserDetails();
   };
 
   async function getUserDetails() {
@@ -59,14 +66,30 @@ export default function Home({ address, setAddress }) {
     setAddress(walletAddress);
   }
 
-  async function submitTransaction(recipient, value, data) {
-    const signer = await provider.getSigner();
-    const contractInstance = new ethers.Contract(
-      MultiSigAddress,
-      MultiSigJSON,
+  async function getGreetingFromGreeter() {
+    const signer = await theProvider.getSigner();
+    const greeterInstance = new ethers.Contract(
+      greeterAddress,
+      GreeterJSON.abi,
       signer
     );
-    await contractInstance.submitTransaction();
+    const currentGreeting = await greeterInstance.greet();
+    console.log(currentGreeting);
+  }
+
+  async function submitTransaction(recipient, value, erc20) {
+    let ABI = ["function transfer(address to, uint amount)"];
+    let iface = new ethers.utils.Interface(ABI);
+    let callData = iface.encodeFunctionData("transfer", [recipient, value]);
+    console.log(callData);
+    console.log({ recipient, value, erc20 });
+    const signer = await theProvider.getSigner();
+    const contractInstance = new ethers.Contract(
+      MultiSigAddress,
+      MultiSigJSON.abi,
+      signer
+    );
+    await contractInstance.submitTransaction(erc20, parseInt(0), callData);
     // set the list to update so it shows the new submitted transaction
   }
 
@@ -91,7 +114,13 @@ export default function Home({ address, setAddress }) {
           <MakeDough />
         </section>
         <section className="section">
-          <ProposeTransaction submitTransaction={submitTransaction} />
+          <ProposeTransaction
+            submitTransaction={submitTransaction}
+            form={form}
+            setForm={setForm}
+            formValid={formValid}
+            setFormValid={setFormValid}
+          />
         </section>
 
         <section className="section">
@@ -102,6 +131,7 @@ export default function Home({ address, setAddress }) {
           <h3>Previous Transactions</h3>
           <TransactionListExecuted />
         </section>
+        <button onClick={getGreetingFromGreeter}>Get greeting</button>
       </div>
     );
   } else {

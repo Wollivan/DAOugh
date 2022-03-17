@@ -1,5 +1,6 @@
 import React from "react";
 import "./HomeContent.scss";
+import GreasePaper from "../../assets/documents/Pizza DAOugh Grease Paper v0.1.pdf";
 
 export default function HomeContent() {
   return (
@@ -12,7 +13,7 @@ export default function HomeContent() {
       <div className="home-content__button-wrap">
         <a
           className="button fixed-width-btn"
-          href="#"
+          href={GreasePaper}
           target="_blank"
           rel="noreferrer"
         >
@@ -20,7 +21,7 @@ export default function HomeContent() {
         </a>
         <a
           className="button fixed-width-btn"
-          href="#"
+          href="https://discord.gg/dyNrqv327w"
           target="_blank"
           rel="noreferrer"
         >
