@@ -9,7 +9,7 @@ import TransactionListExecuted from "../../components/TransactionListExecuted/Tr
 import TransactionListUnexecuted from "../../components/TransactionListUnexecuted/TransactionListUnexecuted";
 import MultiSigJSON from "../../utils/MultiSig.json";
 import GreeterJSON from "../../utils/Greeter.json";
-const MultiSigAddress = "0x13fDd03647e6Df9895D212c2Dee2995CdDF111C6";
+const MultiSigAddress = "0xB6974FfcCC30Bd6626A4Ae58F7fFf80fc417AC16";
 const greeterAddress = "0xA413FBac1487Cf37e82295e23f02f53D64bBCa5A";
 
 // TODO import contsactJSON from "utils where i put the abi"
@@ -84,13 +84,24 @@ export default function Home({ address, setAddress }) {
     console.log(callData);
     console.log({ recipient, value, erc20 });
     const signer = await theProvider.getSigner();
-    const contractInstance = new ethers.Contract(
+    const multiSigInstance = new ethers.Contract(
       MultiSigAddress,
       MultiSigJSON.abi,
       signer
     );
-    await contractInstance.submitTransaction(erc20, parseInt(0), callData);
+    await multiSigInstance.submitTransaction(erc20, parseInt(0), callData);
     // set the list to update so it shows the new submitted transaction
+  }
+
+  async function getGreetingFromMultisig() {
+    const signer = await theProvider.getSigner();
+    const multiSigInstance = new ethers.Contract(
+      MultiSigAddress,
+      MultiSigJSON.abi,
+      signer
+    );
+    const currentGreeting = await multiSigInstance.greet();
+    console.log(currentGreeting);
   }
 
   if (address) {
@@ -131,7 +142,12 @@ export default function Home({ address, setAddress }) {
           <h3>Previous Transactions</h3>
           <TransactionListExecuted />
         </section>
-        <button onClick={getGreetingFromGreeter}>Get greeting</button>
+        <button onClick={getGreetingFromGreeter}>
+          Get greeting from greeter
+        </button>
+        <button onClick={getGreetingFromMultisig}>
+          Get greeting from multisig
+        </button>
       </div>
     );
   } else {

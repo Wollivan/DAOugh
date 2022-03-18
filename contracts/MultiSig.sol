@@ -35,6 +35,10 @@ contract MultiSig {
 
     receive() payable external {}
 
+    function greet() public pure returns (string memory) {
+        return "Hey this worked!";
+    }
+
     function executeTransaction(uint _txId) public {
         require(isConfirmed(_txId));
         // get the transaction object
