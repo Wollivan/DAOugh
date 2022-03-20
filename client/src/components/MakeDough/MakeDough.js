@@ -1,7 +1,7 @@
 import React from "react";
 import "./MakeDough.scss";
 
-export default function MakeDough() {
+export default function MakeDough({ makeDough }) {
   return (
     <div className="make-dough">
       <h3>Turn your ingredients (tokens) into dough (tokens)</h3>
@@ -11,7 +11,9 @@ export default function MakeDough() {
         button you will be added to the DAOugh, meaning you can participate in
         voting and suggesting transactions
       </p>
-      <button className="button">Make Dough!</button>
+      <button className="button" onClick={makeDough}>
+        Make Dough!
+      </button>
     </div>
   );
 }

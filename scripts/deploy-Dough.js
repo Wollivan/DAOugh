@@ -5,12 +5,10 @@ async function main() {
 
   const weiAmount = (await deployer.getBalance()).toString();
 
-  console.log("Account balance:", await ethers.utils.formatEther(weiAmount));
-
   const Token = await ethers.getContractFactory("Dough");
   const token = await Token.deploy();
 
-  console.log("Token address:", token.address);
+  console.log("Dough address:", token.address);
 }
 
 main()

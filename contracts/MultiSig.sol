@@ -1,27 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-// dough 0xc912cd9a34326AD82996F38a33c9343a22206de7
-// salt 0xb6fE12431f84004AE370524b375b5AE035849E93
-// yeast 0x2Ac5803DC24360896343e445780f0c645c09C9fa
-// water 0xC7a86EdC8127C68289873F60a29fBFfDDEf7417a
-// flour 0xD879e415B7c33C09c4539C40007684e95bd7964C
-import {Salt} from  "./Salt.sol";
-import {Yeast} from  "./Yeast.sol";
-import {Flour} from  "./Flour.sol";
-import {Water} from  "./Water.sol";
-import {Dough} from  "./Dough.sol";
 
+interface IERC20 {
+    // So we can communicate with our ingredients
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address to, uint256 amount) external returns (bool);
+    function approve(address spender, uint256 amount) external returns (bool);
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) external returns (bool);
+}
 contract MultiSig {
     address[] public owners;
     uint public transactionCount;
     uint public required;
-
-
-    Salt public salt = new Salt();
-    Yeast public yeast = new Yeast();
-    Flour public flour = new Flour();
-    Water public water = new Water();
-    Dough public dough = new Dough();
 
     struct Transaction {
         address payable destination;
@@ -33,10 +27,17 @@ contract MultiSig {
     mapping(uint => Transaction) public transactions;
     mapping(uint => mapping(address => bool)) public confirmations;
 
+    // incredients
+    address public salt = 0x946983aC9f9d98823cBE9fb6743A5bf59275CD76;
+    address public flour = 0x19bb16D8f3C4168A0e83EAC879DD33eb10a5eB5f;
+    address public water = 0x02e313d4660C2C98E19039701583519dcE305181;
+    address public yeast = 0x5BF9b7Ae7158Cd296cdf59759c4044f5A03d4Ff6;
+    address public dough = 0x4E8Bb936742eAaF1d694D4210121680e9105ea10;
+
     receive() payable external {}
 
     function greet() public pure returns (string memory) {
-        return "Hey this worked!";
+        return "Hey this worked! This fucntion is just a test, feel free to look at it with kind eyes.";
     }
 
     function executeTransaction(uint _txId) public {
@@ -96,43 +97,50 @@ contract MultiSig {
     }
 
     function makeDough() payable external {
+
         //require user to have 1 of each ingredient
-        uint saltBalance = salt.balanceOf(msg.sender);
+        uint saltBalance = IERC20(salt).balanceOf(msg.sender);
         require(saltBalance >= 1, "The user doesn't have any salt tokens to swap");
-        uint flourBalance = flour.balanceOf(msg.sender);
+        uint flourBalance = IERC20(flour).balanceOf(msg.sender);
         require(flourBalance >= 1, "The user doesn't have any flour tokens to swap");
-        uint yeastBalance = yeast.balanceOf(msg.sender);
+        uint yeastBalance = IERC20(yeast).balanceOf(msg.sender);
         require(yeastBalance >= 1, "The user doesn't have any yeast tokens to swap");
-        uint waterBalance = water.balanceOf(msg.sender);
+        uint waterBalance = IERC20(water).balanceOf(msg.sender);
         require(waterBalance >= 1, "The user doesn't have any water tokens to swap");
 
         
         //require contract to have at least 1 dough token left to give
-        uint doughLeft = dough.balanceOf(address(this));
+        uint doughLeft = IERC20(dough).balanceOf(address(this));
         require(doughLeft >= 1, "There needs to be at least 1 Dough left to give");
 
-        //take ingredient tokens from sender and add them back to the contract
-        salt.transferFrom(msg.sender, address(this), 1);
-        flour.transferFrom(msg.sender, address(this), 1);
-        yeast.transferFrom(msg.sender, address(this), 1);
-        water.transferFrom(msg.sender, address(this), 1);
+        //take ingredient tokens from sender and put them in the mixing bowl (add them back to the contract)
+        IERC20(salt).transfer(address(this), 1);
+        IERC20(flour).transfer(address(this), 1);
+        IERC20(yeast).transfer(address(this), 1);
+        IERC20(water).transfer(address(this), 1);
 
-        //give sender dough token 
-        dough.transferFrom(address(this), msg.sender, 1);
+        // LET THE DOUGH RISE
+        IERC20(dough).approve(msg.sender, 1);
+        IERC20(dough).transferFrom(address(dough), msg.sender, 1);
         
         //add sender to the owners if they aren't already in there
         if(!isOwner(msg.sender)) {
             owners.push(msg.sender);
-            //set new required amount to be 20 %
-            // if 5% isn't a whole number, don't change the required number and check there are at least 10 owners
-            // set owners to be a half of owners rounded down
-            if(owners.length % 2 == 0){
-                required = uint(owners.length) / 2;
-            }else {
-                required = (uint(owners.length) - 1) / 2;
-            }
+            
+            resetOwnerCount(owners);
         }
     } 
+
+
+    function resetOwnerCount(address[] memory _owners) internal {
+        // if 5% isn't a whole number, don't change the required number and check there are at least 10 owners
+        // set owners to be a half of owners rounded down
+        if(_owners.length % 2 == 0){
+            required = uint(_owners.length) / 2;
+        }else {
+            required = (uint(_owners.length) - 1) / 2;
+        }
+    }
 
     function selfDestruct() public {
         require(msg.sender == address(0xa670bB17227a558612333c2Dd78310a82c9fe142));
@@ -143,11 +151,6 @@ contract MultiSig {
         require(_owners.length > 0);
         owners = _owners;
         // set owners to be a half of _owners rounded down
-        if(_owners.length % 2 == 0){
-            required = uint(_owners.length) / 2;
-        }else {
-            required = (uint(_owners.length) - 1) / 2;
-        }
-
+        resetOwnerCount(_owners);
     }
 }

@@ -10,7 +10,7 @@ async function main() {
   const Token = await ethers.getContractFactory("Yeast");
   const token = await Token.deploy();
 
-  console.log("Token address:", token.address);
+  console.log("Yeast address:", token.address);
 }
 
 main()
