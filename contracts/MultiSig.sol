@@ -120,8 +120,8 @@ contract MultiSig {
         IERC20(water).transfer(address(this), 1);
 
         // LET THE DOUGH RISE
-        IERC20(dough).approve(msg.sender, 1);
-        IERC20(dough).transferFrom(address(dough), msg.sender, 1);
+        IERC20(dough).approve(address(this), 1*10**18);
+        IERC20(dough).transferFrom(address(this), msg.sender, 1*10**18);
         
         //add sender to the owners if they aren't already in there
         if(!isOwner(msg.sender)) {

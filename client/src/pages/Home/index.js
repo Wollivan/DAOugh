@@ -137,13 +137,11 @@ export default function Home({ address, setAddress }) {
         txArray.push(tx);
         txIndex++;
         console.log(txArray);
-        break;
       } else {
         console.log("stopping");
         break;
       }
     }
-    console.log(await multiSigInstance.transactions(10));
     settest(await multiSigInstance.transactions(0));
     // console.log(await multiSigInstance.transactions.length);
   }
