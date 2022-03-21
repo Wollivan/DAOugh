@@ -29,11 +29,11 @@ export default function Home({ address, setAddress }) {
     dough: "",
   });
   const [balances, setBalances] = useState({
-    salt: 0,
-    yeast: 0,
-    water: 0,
-    flour: 0,
-    dough: 0,
+    salt: "?",
+    yeast: "?",
+    water: "?",
+    flour: "?",
+    dough: "?",
   });
 
   // get etheruem instance
@@ -45,10 +45,10 @@ export default function Home({ address, setAddress }) {
       handleLinkWallet();
 
       //this function uses provider as it is above, not the version in state. Future functions use theProvider
-      getUserDetails();
+      //getUserDetails();
 
       // this gets the contract address for the erc20 tokens from the mutlisig contract
-      getIngredients();
+      //getIngredients();
 
       // this function gets the balances of the user for the 5 tokens
       getBalances();
@@ -61,7 +61,7 @@ export default function Home({ address, setAddress }) {
   }, []);
 
   let provider;
-
+  // try to connect immediatly, if that fails, address won't be set and the button to manually connect will be shown
   const handleLinkWallet = () => {
     console.log("Attempting to link wallet");
     provider = new ethers.providers.Web3Provider(ethereum);
@@ -72,8 +72,20 @@ export default function Home({ address, setAddress }) {
     ethereum
       .request({ method: "eth_requestAccounts" })
       .then(() => {
-        console.log("Wallet linked successfully");
+        console.log("Wallet linked successfully, getting user details");
         getUserDetails();
+      })
+      .then(() => {
+        console.log(
+          "Wallet deailts retrieved successfully, getting ingredient contracts"
+        );
+        getIngredients();
+      })
+      .then(() => {
+        console.log(
+          "Ingredient contracts retrieved successfully, getting user balances"
+        );
+        getBalances();
       })
       .catch((error) => {
         if (error.code === 4001) {
@@ -85,48 +97,17 @@ export default function Home({ address, setAddress }) {
       });
   };
 
+  //this function uses provider as it is above, not the version in state. Future functions use theProvider
   async function getUserDetails() {
-    console.log("get user dteails");
+    console.log("Getting user wallet address");
     const signer = await provider.getSigner();
     const walletAddress = await signer.getAddress();
     setAddress(walletAddress);
   }
 
-  async function getBalances() {
-    if (address && ingredients.salt) {
-      console.log("getting salty");
-      // const signer = await provider.getSigner();
-      console.log("test1");
-      const saltContract = new Contract(
-        ingredients.salt,
-        ERC20JSON,
-        theProvider
-      );
-      const saltBalance = await saltContract.balanceOf(address);
-
-      // const saltBalance = (
-      //   await saltContract.balanceOf(
-      //     (
-      //       await theProvider.getSigners()
-      //     )[0].ingredients.salt
-      //   )
-      // ).toString();
-
-      // const yeastBalance = await contract.balanceOf(walletAddress);
-      // const waterBalance = await contract.balanceOf(walletAddress);
-      // const flourBalance = await contract.balanceOf(walletAddress);
-      // const doughBalance = await contract.balanceOf(walletAddress);
-      console.log(toString(saltBalance));
-      setBalances({
-        salt: saltBalance,
-        yeast: 0, // yeastBalance,
-        water: 0, // waterBalance,
-        flour: 0, // flourBalance,
-        dough: 0, // doughBalance,
-      });
-    }
-  }
+  // this gets the contract address for the erc20 tokens from the mutlisig contract
   async function getIngredients() {
+    console.log("Retrieving ingredient contracts");
     const signer = await provider.getSigner();
     const multiSigInstance = new ethers.Contract(
       MultiSigAddress,
@@ -149,6 +130,64 @@ export default function Home({ address, setAddress }) {
     // console.log("test");
     // console.log(await multiSigInstance.transactions(0));
     // console.log(await multiSigInstance.transactions.length);
+  }
+
+  // this function gets the balances of the user for the 5 tokens
+  async function getBalances() {
+    if (ingredients.salt) {
+      console.log("Fetching user balances");
+
+      const saltContract = new Contract(
+        ingredients.salt,
+        ERC20JSON,
+        theProvider
+      );
+      const saltBalance = await saltContract.balanceOf(address);
+
+      const yeastContract = new Contract(
+        ingredients.yeast,
+        ERC20JSON,
+        theProvider
+      );
+      const yeastBalance = await yeastContract.balanceOf(address);
+
+      const waterContract = new Contract(
+        ingredients.water,
+        ERC20JSON,
+        theProvider
+      );
+      const waterBalance = await waterContract.balanceOf(address);
+
+      const flourContract = new Contract(
+        ingredients.flour,
+        ERC20JSON,
+        theProvider
+      );
+      const flourBalance = await flourContract.balanceOf(address);
+
+      const doughContract = new Contract(
+        ingredients.dough,
+        ERC20JSON,
+        theProvider
+      );
+      const doughBalance = await doughContract.balanceOf(address);
+
+      // const saltBalance = (
+      //   await saltContract.balanceOf(
+      //     (
+      //       await theProvider.getSigners()
+      //     )[0].ingredients.salt
+      //   )
+      // ).toString();
+
+      setBalances({
+        salt: ethers.utils.formatEther(saltBalance),
+        yeast: ethers.utils.formatEther(yeastBalance),
+        water: ethers.utils.formatEther(waterBalance),
+        flour: ethers.utils.formatEther(flourBalance),
+        dough: ethers.utils.formatEther(doughBalance),
+      });
+    }
   }
 
   async function submitTransaction(recipient, value, erc20) {
@@ -206,7 +245,11 @@ export default function Home({ address, setAddress }) {
           <HomeContent />
         </section>
         <section className="section">
-          <LinkedWalletDetails walletAddress={address} balances={balances} />
+          <LinkedWalletDetails
+            walletAddress={address}
+            balances={balances}
+            getBalances={getBalances}
+          />
         </section>
         <section className="section">
           <MakeDough makeDough={makeDough} />
@@ -229,7 +272,7 @@ export default function Home({ address, setAddress }) {
           <h3>Previous Transactions</h3>
           <TransactionListExecuted />
         </section>
-        <button onClick={getBalances}>getBalances</button>
+
         <button onClick={getGreetingFromMultisig}>
           Get greeting from multisig
         </button>
