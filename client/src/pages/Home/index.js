@@ -11,8 +11,6 @@ import MultiSigJSON from "../../utils/MultiSig.json";
 import ERC20JSON from "../../utils/ERC20.json";
 const MultiSigAddress = "0xE4d5f244acC731b8dEae4bc42d02A3B35ee8Be4e"; //"0x45c85aa590b2Bc725E63aF2b746B7D3EF73e0138";
 
-// TODO get the addresses for the dropdown from the contract
-
 export default function Home({ address, setAddress }) {
   const [theProvider, setTheProvider] = useState(null);
   const [formValid, setFormValid] = useState(true);
@@ -35,6 +33,7 @@ export default function Home({ address, setAddress }) {
     flour: "?",
     dough: "?",
   });
+  const [test, settest] = useState({});
 
   // get etheruem instance
   const { ethereum } = window;
@@ -52,6 +51,7 @@ export default function Home({ address, setAddress }) {
 
       // this function gets the balances of the user for the 5 tokens
       getBalances();
+      console.log(test);
 
       //callback function to prevent error
       return () => {
@@ -128,7 +128,23 @@ export default function Home({ address, setAddress }) {
       dough,
     });
     // console.log("test");
-    // console.log(await multiSigInstance.transactions(0));
+    let txIndex = 0;
+    let txArray = [];
+    while (true) {
+      let tx = await multiSigInstance.transactions(txIndex);
+      console.log(tx);
+      if (tx.destination != "0x0000000000000000000000000000000000000000") {
+        txArray.push(tx);
+        txIndex++;
+        console.log(txArray);
+        break;
+      } else {
+        console.log("stopping");
+        break;
+      }
+    }
+    console.log(await multiSigInstance.transactions(10));
+    settest(await multiSigInstance.transactions(0));
     // console.log(await multiSigInstance.transactions.length);
   }
 
@@ -234,12 +250,8 @@ export default function Home({ address, setAddress }) {
     return (
       <div className="content">
         {
-          // TODO current contract balance of all the tokens
-          // TODO link metamask
-          // TODO suggest transaction
           // TODO vote on transaction
           // TODO transaction lists (both executed and unexectued)
-          // TODO link to whitepaper and discord
         }
         <section className="section">
           <HomeContent />
@@ -296,6 +308,13 @@ export default function Home({ address, setAddress }) {
           }}
         >
           walletAddress
+        </button>
+        <button
+          onClick={() => {
+            console.log(test.destination);
+          }}
+        >
+          test
         </button>
       </div>
     );
