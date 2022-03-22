@@ -30,17 +30,17 @@
     }
   }
 
-  &__disabled {
+  &--disabled {
     @extend .button;
-    background-color: v.$secondary-color;
-    border: 1px solid v.$secondary-color;
+    background-color: v.$primary-color;
+    border: 3px solid v.$primary-color;
     opacity: 0.4;
-    color: #fff;
+    color: #000;
     cursor: default;
     &:hover {
-      background-color: v.$secondary-color;
-      border: 1px solid v.$secondary-color;
-      color: #fff;
+      background-color: v.$primary-color;
+      border: 3px solid v.$primary-color;
+      color: #000;
     }
   }
 }

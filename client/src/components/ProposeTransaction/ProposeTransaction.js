@@ -85,7 +85,7 @@ export default function ProposeTransaction({
 
   return (
     <form className="propose-form" onSubmit={handleSubmit}>
-      <h3>Propose New Transaction</h3>
+      <h3>Propose New Transaction (DAOugh members only)</h3>
       <select
         name="token"
         className="propose-form__input"

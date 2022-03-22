@@ -1,7 +1,27 @@
 import React from "react";
 import "./MakeDough.scss";
 
-export default function MakeDough({ makeDough }) {
+export default function MakeDough({ makeDough, approved, approveAll }) {
+  function getButtons() {
+    if (approved) {
+      return (
+        <>
+          <button className="button" onClick={makeDough}>
+            Make Dough!
+          </button>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <button className="button" onClick={approveAll}>
+            Approve transfer from contracts before you can make dough
+          </button>
+        </>
+      );
+    }
+  }
+
   return (
     <div className="make-dough">
       <h3>Turn your ingredients (tokens) into dough (tokens)</h3>
@@ -11,9 +31,8 @@ export default function MakeDough({ makeDough }) {
         button you will be added to the DAOugh, meaning you can participate in
         voting and suggesting transactions
       </p>
-      <button className="button" onClick={makeDough}>
-        Make Dough!
-      </button>
+
+      {getButtons()}
     </div>
   );
 }

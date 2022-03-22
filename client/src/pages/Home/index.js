@@ -5,13 +5,15 @@ import LinkedWalletDetails from "../../components/LinkedWalletDetails/LinkedWall
 import LinkWallet from "../../components/LinkWallet/LinkWallet";
 import MakeDough from "../../components/MakeDough/MakeDough";
 import ProposeTransaction from "../../components/ProposeTransaction/ProposeTransaction";
-import TransactionListExecuted from "../../components/TransactionListExecuted/TransactionListExecuted";
-import TransactionListUnexecuted from "../../components/TransactionListUnexecuted/TransactionListUnexecuted";
+// import TransactionListExecuted from "../../components/TransactionListExecuted/TransactionListExecuted";
+// import TransactionListUnexecuted from "../../components/TransactionListUnexecuted/TransactionListUnexecuted";
+import TransactionList from "../../components/TransactionList/TransactionList";
 import MultiSigJSON from "../../utils/MultiSig.json";
 import ERC20JSON from "../../utils/ERC20.json";
-const MultiSigAddress = "0xE4d5f244acC731b8dEae4bc42d02A3B35ee8Be4e"; //"0x45c85aa590b2Bc725E63aF2b746B7D3EF73e0138";
+const MultiSigAddress = "0x8023157eBDA2ED5E386eB4B8EcD9a874E384f5d6"; //"0x45c85aa590b2Bc725E63aF2b746B7D3EF73e0138";
 
 export default function Home({ address, setAddress }) {
+  const [approved, setApproved] = useState(false);
   const [theProvider, setTheProvider] = useState(null);
   const [formValid, setFormValid] = useState(true);
   const [form, setForm] = useState({
@@ -33,7 +35,8 @@ export default function Home({ address, setAddress }) {
     flour: "?",
     dough: "?",
   });
-  const [test, settest] = useState({});
+  const [transactions, setTransactions] = useState(false);
+  const [confirmations, setConfirmations] = useState(false);
 
   // get etheruem instance
   const { ethereum } = window;
@@ -51,7 +54,7 @@ export default function Home({ address, setAddress }) {
 
       // this function gets the balances of the user for the 5 tokens
       getBalances();
-      console.log(test);
+      console.log(transactions);
 
       //callback function to prevent error
       return () => {
@@ -83,7 +86,13 @@ export default function Home({ address, setAddress }) {
       })
       .then(() => {
         console.log(
-          "Ingredient contracts retrieved successfully, getting user balances"
+          "Ingredient contracts retrieved successfully, getting transactions"
+        );
+        getTransactions();
+      })
+      .then(() => {
+        console.log(
+          "Transactions retrieved successfully, getting user balances"
         );
         getBalances();
       })
@@ -127,23 +136,30 @@ export default function Home({ address, setAddress }) {
       flour,
       dough,
     });
-    // console.log("test");
+  }
+
+  async function getTransactions() {
+    const signer = await provider.getSigner();
+    const multiSigInstance = new ethers.Contract(
+      MultiSigAddress,
+      MultiSigJSON.abi,
+      signer
+    );
     let txIndex = 0;
     let txArray = [];
     while (true) {
       let tx = await multiSigInstance.transactions(txIndex);
-      console.log(tx);
+
       if (tx.destination != "0x0000000000000000000000000000000000000000") {
         txArray.push(tx);
         txIndex++;
-        console.log(txArray);
       } else {
-        console.log("stopping");
+        console.log("Reached end of transactions");
         break;
       }
     }
-    settest(await multiSigInstance.transactions(0));
-    // console.log(await multiSigInstance.transactions.length);
+    // let reversed = txArray.reverse();
+    setTransactions(txArray);
   }
 
   // this function gets the balances of the user for the 5 tokens
@@ -186,14 +202,6 @@ export default function Home({ address, setAddress }) {
       );
       const doughBalance = await doughContract.balanceOf(address);
 
-      // const saltBalance = (
-      //   await saltContract.balanceOf(
-      //     (
-      //       await theProvider.getSigners()
-      //     )[0].ingredients.salt
-      //   )
-      // ).toString();
-
       setBalances({
         salt: ethers.utils.formatEther(saltBalance),
         yeast: ethers.utils.formatEther(yeastBalance),
@@ -210,8 +218,10 @@ export default function Home({ address, setAddress }) {
     let zeros = "000000000000000000"; //because JS is scared of big numbers, but I ain't afraid of no 18 zeros...
     let fullValue = value + zeros;
     let callData = iface.encodeFunctionData("transfer", [recipient, fullValue]);
-    console.log(callData);
-    console.log({ recipient, fullValue, erc20 });
+
+    // console.log(callData);
+    // console.log({ recipient, fullValue, erc20 });
+
     const signer = await theProvider.getSigner();
     const multiSigInstance = new ethers.Contract(
       MultiSigAddress,
@@ -220,6 +230,24 @@ export default function Home({ address, setAddress }) {
     );
     await multiSigInstance.submitTransaction(erc20, parseInt(0), callData); // 0 value because it isn't ETH (we should be so lucky)
     // set the list to update so it shows the new submitted transaction
+  }
+
+  async function approveAll() {
+    let ABI = ["function approve(address spender, uint amount)"];
+    let iface = new ethers.utils.Interface(ABI);
+    const signer = await theProvider.getSigner();
+
+    const saltInstance = new ethers.Contract(ingredients.salt, ABI, signer);
+    const waterInstance = new ethers.Contract(ingredients.water, ABI, signer);
+    const flourInstance = new ethers.Contract(ingredients.flour, ABI, signer);
+    const yeastInstance = new ethers.Contract(ingredients.yeast, ABI, signer);
+
+    await saltInstance.approve(MultiSigAddress, "1000000000000000001");
+    await waterInstance.approve(MultiSigAddress, "1000000000000000001");
+    await flourInstance.approve(MultiSigAddress, "1000000000000000001");
+    await yeastInstance.approve(MultiSigAddress, "1000000000000000001");
+
+    setApproved(true);
   }
 
   async function makeDough() {
@@ -231,6 +259,18 @@ export default function Home({ address, setAddress }) {
       signer
     );
     await multiSigInstance.makeDough();
+  }
+
+  async function confirmTransaction(txId) {
+    console.log(txId);
+    console.log("confirming transaction as owner");
+    const signer = await theProvider.getSigner();
+    const multiSigInstance = new ethers.Contract(
+      MultiSigAddress,
+      MultiSigJSON.abi,
+      signer
+    );
+    await multiSigInstance.confirmTransaction(txId);
   }
 
   async function getGreetingFromMultisig() {
@@ -262,7 +302,11 @@ export default function Home({ address, setAddress }) {
           />
         </section>
         <section className="section">
-          <MakeDough makeDough={makeDough} />
+          <MakeDough
+            makeDough={makeDough}
+            approved={approved}
+            approveAll={approveAll}
+          />
         </section>
         <section className="section">
           <ProposeTransaction
@@ -274,45 +318,31 @@ export default function Home({ address, setAddress }) {
             ingredients={ingredients}
           />
         </section>
-        <section className="section">
+        {/* <section className="section">
           <h3>Transactions awaiting approval</h3>
           <TransactionListUnexecuted />
         </section>
         <section className="section">
           <h3>Previous Transactions</h3>
           <TransactionListExecuted />
-        </section>
+        </section> */}
 
-        <button onClick={getGreetingFromMultisig}>
+        <section className="section">
+          <h3>Transactions</h3>
+          <TransactionList
+            transactions={transactions}
+            confirmTransaction={confirmTransaction}
+          />
+        </section>
+        {/* <button onClick={getGreetingFromMultisig}>
           Get greeting from multisig
-        </button>
+        </button> */}
         <button
           onClick={() => {
-            console.log(ingredients);
+            console.log(transactions);
           }}
         >
-          Ingredients
-        </button>
-        <button
-          onClick={() => {
-            console.log(balances);
-          }}
-        >
-          balances
-        </button>
-        <button
-          onClick={() => {
-            console.log(address);
-          }}
-        >
-          walletAddress
-        </button>
-        <button
-          onClick={() => {
-            console.log(test.destination);
-          }}
-        >
-          test
+          list
         </button>
       </div>
     );

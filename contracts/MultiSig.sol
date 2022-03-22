@@ -28,16 +28,16 @@ contract MultiSig {
     mapping(uint => mapping(address => bool)) public confirmations;
 
     // incredients
-    address public salt = 0x946983aC9f9d98823cBE9fb6743A5bf59275CD76;
-    address public flour = 0x19bb16D8f3C4168A0e83EAC879DD33eb10a5eB5f;
-    address public water = 0x02e313d4660C2C98E19039701583519dcE305181;
-    address public yeast = 0x5BF9b7Ae7158Cd296cdf59759c4044f5A03d4Ff6;
-    address public dough = 0x4E8Bb936742eAaF1d694D4210121680e9105ea10;
+    address public salt = 0xA39e6Eb9F0147C3d21B37D81af67bbc92884c29e;
+    address public flour = 0xA97405b41C389bC0feDD6d54D2ddB4fD34F8035c;
+    address public water = 0x1E11Baac21D7ACBE2d1d9C8ad0F9C91058F387aa;
+    address public yeast = 0xadc57A558674F6CEcEfcC2C6Eb26e90CFbE11603;
+    address public dough = 0x80d24EA41F3A228f182F0013d7c73f415B88433c;
 
     receive() payable external {}
 
     function greet() public pure returns (string memory) {
-        return "Hey this worked! This fucntion is just a test, feel free to look at it with kind eyes.";
+        return "Hey this worked! This function is just a test, feel free to look at it with kind eyes.";
     }
 
     function executeTransaction(uint _txId) public {
@@ -97,7 +97,6 @@ contract MultiSig {
     }
 
     function makeDough() payable external {
-
         //require user to have 1 of each ingredient
         uint saltBalance = IERC20(salt).balanceOf(msg.sender);
         require(saltBalance >= 1, "The user doesn't have any salt tokens to swap");
@@ -114,10 +113,11 @@ contract MultiSig {
         require(doughLeft >= 1, "There needs to be at least 1 Dough left to give");
 
         //take ingredient tokens from sender and put them in the mixing bowl (add them back to the contract)
-        IERC20(salt).transfer(address(this), 1);
-        IERC20(flour).transfer(address(this), 1);
-        IERC20(yeast).transfer(address(this), 1);
-        IERC20(water).transfer(address(this), 1);
+        // these are apprioved
+        IERC20(salt).transferFrom(msg.sender, address(this), 1*10**18);
+        IERC20(yeast).transferFrom(msg.sender, address(this), 1*10**18);
+        IERC20(water).transferFrom(msg.sender, address(this), 1*10**18);
+        IERC20(flour).transferFrom(msg.sender, address(this), 1*10**18);
 
         // LET THE DOUGH RISE
         IERC20(dough).approve(address(this), 1*10**18);
