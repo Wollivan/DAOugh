@@ -334,16 +334,6 @@ export default function Home({ address, setAddress }) {
             confirmTransaction={confirmTransaction}
           />
         </section>
-        {/* <button onClick={getGreetingFromMultisig}>
-          Get greeting from multisig
-        </button> */}
-        <button
-          onClick={() => {
-            console.log(transactions);
-          }}
-        >
-          list
-        </button>
       </div>
     );
   } else {
