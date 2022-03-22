@@ -10,6 +10,10 @@ export default function HomeContent() {
         The Dough DAO (DAOugh) was created to bring together all people who love
         to create pizza, and who love to create innovative web3 technologies.{" "}
       </p>
+      <p>
+        (Make sure you're connecting on the <b>Goerli</b> network)
+      </p>
+      <br />
       <div className="home-content__button-wrap">
         <a
           className="button fixed-width-btn"
