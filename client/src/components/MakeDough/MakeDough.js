@@ -11,6 +11,10 @@ export default function MakeDough({ makeDough, approved, approveAll }) {
     if (approved) {
       return (
         <>
+          <p>
+            You may need to wait until the 4 approval requests have gone
+            through.
+          </p>
           <button className="button" onClick={makeDough}>
             Make Dough!
           </button>
