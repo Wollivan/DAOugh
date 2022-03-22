@@ -5,7 +5,7 @@
 
 .transaction-list {
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   &__item {
     padding: 1rem;
     background-color: v.$secondary-color;
@@ -18,7 +18,7 @@
     }
     &-title {
       font-weight: 700;
-      margin-bottom: 0;
+      margin: 0;
     }
     &-details {
       display: flex;

@@ -4,7 +4,7 @@ import "./TransactionList.scss";
 export default function TransactionList({ transactions, confirmTransaction }) {
   if (transactions) {
     return (
-      <>
+      <div className="transaction-list">
         {transactions.map((transaction, i) => {
           let tokenAddress = transaction[0];
           let amount = transaction[1];
@@ -123,7 +123,7 @@ export default function TransactionList({ transactions, confirmTransaction }) {
             );
           }
         })}
-      </>
+      </div>
     );
   } else {
     return "loading";
